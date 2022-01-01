@@ -5,6 +5,7 @@ const {
   addCategory,
   getCategories,
   updateCategories,
+  deleteCategories,
 } = require("../controllers/category");
 const multer = require("multer");
 const shortid = require("shortid");
@@ -33,6 +34,7 @@ router.post(
   upload.array("categoryImage"),
   updateCategories
 );
+router.post("/category/delete", deleteCategories);
 router.get("/category/getcategory", getCategories);
 
 module.exports = router;
