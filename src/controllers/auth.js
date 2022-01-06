@@ -63,12 +63,12 @@ exports.signin = (req, res) => {
         });
       } else {
         return res.status(400).json({
-          message: "invalid password",
+          message: "Something went wrong",
         });
       }
     } else {
       return res.status(400).json({
-        message: "something went wrong",
+        message: "Something went wrong",
       });
     }
   });
