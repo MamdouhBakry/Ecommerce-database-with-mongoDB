@@ -9,5 +9,5 @@ router.post(
   userMiddleware,
   addItemToCart
 );
-router.get("/user/getCartItem",requireSignin,userMiddleware,getCartItems)
+router.get("/user/getCartItems", requireSignin, userMiddleware, getCartItems);
 module.exports = router;

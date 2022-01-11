@@ -4,6 +4,12 @@ const bcrypt = require("bcrypt");
 const shortid = require("shortid");
 const { validationResult } = require("express-validator");
 
+const generateJwtToken = (_id, role) => {
+  return jwt.sign({ _id, role }, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
+};
+
 exports.signup = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (error, user) => {
     if (user)
@@ -20,15 +26,18 @@ exports.signup = (req, res) => {
       userName: shortid.generate(),
     });
 
-    _user.save((error, data) => {
+    _user.save((error, user) => {
       if (error) {
         return res.status(400).json({
           message: "something went wromg",
         });
       }
-      if (data) {
+      if (user) {
+        const token = generateJwtToken(user._id, user.role);
+        const { _id, firstName, lastName, email, role, fullName } = user;
         return res.status(201).json({
-          message: "user created successfully",
+          token,
+          user: { _id, firstName, lastName, email, role, fullName },
         });
       }
     });
@@ -36,30 +45,21 @@ exports.signup = (req, res) => {
 };
 
 exports.signin = (req, res) => {
-  User.findOne({ email: req.body.email }).exec((error, user) => {
-    if (error) {
-      return res.status(400).json({ error });
-    }
+  User.findOne({ email: req.body.email }).exec(async (error, user) => {
+    if (error) return res.status(400).json({ error });
     if (user) {
-      if (user.authenticate(req.body.password) && user.role === "user") {
-        const token = jwt.sign(
-          { _id: user._id, role: user.role },
-          process.env.JWT_SECRET,
-          {
-            expiresIn: "1d",
-          }
-        );
+      const isPassword = await user.authenticate(req.body.password);
+      if (isPassword && user.role === "user") {
+        // const token = jwt.sign(
+        //   { _id: user._id, role: user.role },
+        //   process.env.JWT_SECRET,
+        //   { expiresIn: "1d" }
+        // );
+        const token = generateJwtToken(user._id, user.role);
         const { _id, firstName, lastName, email, role, fullName } = user;
-        return res.status(200).json({
+        res.status(200).json({
           token,
-          user: {
-            _id,
-            firstName,
-            lastName,
-            email,
-            role,
-            fullName,
-          },
+          user: { _id, firstName, lastName, email, role, fullName },
         });
       } else {
         return res.status(400).json({
@@ -67,9 +67,7 @@ exports.signin = (req, res) => {
         });
       }
     } else {
-      return res.status(400).json({
-        message: "Something went wrong",
-      });
+      return res.status(400).json({ message: "Something went wrong" });
     }
   });
 };

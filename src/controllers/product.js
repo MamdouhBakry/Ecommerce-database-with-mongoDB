@@ -4,7 +4,7 @@ const slugify = require("slugify");
 const Category = require("../models/category");
 
 exports.createProduct = (req, res) => {
-  const { name, price, description, category, quantity, createdBy } = req.body;
+  const { name, price, description, category, quantity } = req.body;
   let productPictures = [];
   if (req.files.length > 0) {
     productPictures = req.files.map((file) => {
