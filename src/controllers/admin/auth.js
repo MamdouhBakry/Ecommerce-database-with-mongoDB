@@ -41,7 +41,6 @@ exports.signin = (req, res) => {
     }
     if (user) {
       const isPassword = await user.authenticate(req.body.password);
-      console.log(isPassword);
       if (isPassword && user.role === "admin") {
         const token = jwt.sign(
           { _id: user._id, role: user.role },

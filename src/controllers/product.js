@@ -4,6 +4,8 @@ const slugify = require("slugify");
 const Category = require("../models/category");
 
 exports.createProduct = (req, res) => {
+  // console.log("req.files", req.files);
+  // console.log("req.body", req.body);
   //res.status(200).json( { file: req.files, body: req.body } );
 
   const { name, price, description, category, quantity, createdBy } = req.body;
@@ -11,7 +13,7 @@ exports.createProduct = (req, res) => {
 
   if (req.files.length > 0) {
     productPictures = req.files.map((file) => {
-      return { img: file.location };
+      return { img: file.filename };
     });
   }
 
