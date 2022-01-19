@@ -29,8 +29,7 @@ exports.addCategory = (req, res) => {
   };
 
   if (req.file) {
-    categoryObject.categoryImage =
-      process.env.API + "/public/" + req.file.filename;
+    categoryObject.categoryImage = "/public/" + req.file.filename;
   }
   if (req.body.parentId) {
     categoryObject.parentId = req.body.parentId;
