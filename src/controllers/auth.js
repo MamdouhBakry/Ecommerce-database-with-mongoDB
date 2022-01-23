@@ -9,44 +9,74 @@ const generateJwtToken = (_id, role) => {
     expiresIn: "1d",
   });
 };
-
 exports.signup = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (error, user) => {
-    if (error) {
+    if (user)
       return res.status(400).json({
-        message: "user allready registered",
+        message: "User allready registered",
       });
-    }
-    if (user) {
-      const { firstName, lastName, email, password } = req.body;
-      const hash_password = await bcrypt.hash(password, 10);
-      const _user = new User({
-        firstName,
-        lastName,
-        email,
-        hash_password,
-        userName: shortid.generate(),
-      });
-      _user.save((error, user) => {
-        if (error) {
-          return res.status(400).json({
-            message: "something went wromg",
-          });
-        }
-        if (user) {
-          const token = generateJwtToken(user._id, user.role);
-          const { _id, firstName, lastName, email, role, fullName } = user;
-          return res.status(201).json({
-            token,
-            user: { _id, firstName, lastName, email, role, fullName },
-          });
-        }
-      });
-    } else {
-      return res.status(400).json({ message: "Something went wrong" });
-    }
+    const { firstName, lastName, email, password } = req.body;
+    const hash_password = await bcrypt.hash(password, 10);
+    const _user = new User({
+      firstName,
+      lastName,
+      email,
+      hash_password,
+      userName: shortid.generate(),
+      role: "user",
+    });
+
+    _user.save((error, user) => {
+      if (error) {
+        return res.status(400).json({
+          message: "something went wromg",
+        });
+      }
+      if (user) {
+        return res.status(201).json({
+          message: "USer created successfully",
+        });
+      }
+    });
   });
 };
+// exports.signup = (req, res) => {
+//   User.findOne({ email: req.body.email }).exec(async (error, user) => {
+//     if (error) {
+//       return res.status(400).json({
+//         message: "user allready registered",
+//       });
+//     }
+//     if (user) {
+//       const { firstName, lastName, email, password } = req.body;
+//       const hash_password = await bcrypt.hash(password, 10);
+//       const _user = new User({
+//         firstName,
+//         lastName,
+//         email,
+//         hash_password,
+//         userName: shortid.generate(),
+//       });
+//       _user.save((error, user) => {
+//         if (error) {
+//           return res.status(400).json({
+//             message: "something went wromg",
+//           });
+//         }
+//         if (user) {
+//           const token = generateJwtToken(user._id, user.role);
+//           const { _id, firstName, lastName, email, role, fullName } = user;
+//           return res.status(201).json({
+//             token,
+//             user: { _id, firstName, lastName, email, role, fullName },
+//           });
+//         }
+//       });
+//     } else {
+//       return res.status(400).json({ message: "Something went wrong" });
+//     }
+//   });
+// };
 
 exports.signin = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (error, user) => {
