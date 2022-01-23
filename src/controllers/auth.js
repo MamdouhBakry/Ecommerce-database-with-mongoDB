@@ -12,35 +12,39 @@ const generateJwtToken = (_id, role) => {
 
 exports.signup = (req, res) => {
   User.findOne({ email: req.body.email }).exec(async (error, user) => {
-    if (user)
+    if (error) {
       return res.status(400).json({
         message: "user allready registered",
       });
-    const { firstName, lastName, email, password } = req.body;
-    const hash_password = await bcrypt.hash(password, 10);
-    const _user = new User({
-      firstName,
-      lastName,
-      email,
-      hash_password,
-      userName: shortid.generate(),
-    });
-
-    _user.save((error, user) => {
-      if (error) {
-        return res.status(400).json({
-          message: "something went wromg",
-        });
-      }
-      if (user) {
-        const token = generateJwtToken(user._id, user.role);
-        const { _id, firstName, lastName, email, role, fullName } = user;
-        return res.status(201).json({
-          token,
-          user: { _id, firstName, lastName, email, role, fullName },
-        });
-      }
-    });
+    }
+    if (user) {
+      const { firstName, lastName, email, password } = req.body;
+      const hash_password = await bcrypt.hash(password, 10);
+      const _user = new User({
+        firstName,
+        lastName,
+        email,
+        hash_password,
+        userName: shortid.generate(),
+      });
+      _user.save((error, user) => {
+        if (error) {
+          return res.status(400).json({
+            message: "something went wromg",
+          });
+        }
+        if (user) {
+          const token = generateJwtToken(user._id, user.role);
+          const { _id, firstName, lastName, email, role, fullName } = user;
+          return res.status(201).json({
+            token,
+            user: { _id, firstName, lastName, email, role, fullName },
+          });
+        }
+      });
+    } else {
+      return res.status(400).json({ message: "Something went wrong" });
+    }
   });
 };
 
