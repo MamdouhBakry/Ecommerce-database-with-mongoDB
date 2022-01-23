@@ -10,6 +10,7 @@ const generateJwtToken = (_id, role) => {
   });
 };
 exports.signup = (req, res) => {
+  console.log(req.body);
   User.findOne({ email: req.body.email }).exec(async (error, user) => {
     if (user)
       return res.status(400).json({
@@ -33,8 +34,11 @@ exports.signup = (req, res) => {
         });
       }
       if (user) {
+        const token = generateJwtToken(user._id, user.role);
+        const { _id, firstName, lastName, email, role, fullName } = user;
         return res.status(201).json({
-          message: "USer created successfully",
+          token,
+          user: { _id, firstName, lastName, email, role, fullName },
         });
       }
     });
